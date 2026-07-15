@@ -1,4 +1,4 @@
-# E-commerce Customer Experience and Product Performance Analysis
+# Customer Behaviour and Product Performance Analysis
 
 ## Project overview
 
@@ -38,7 +38,7 @@ Raw data files are not included in this repository. Download them separately and
 ## Project structure
 
 ```text
-olist-customer-analysis
+customer-product-analysis
 ├── data
 │   ├── raw
 │   └── processed
