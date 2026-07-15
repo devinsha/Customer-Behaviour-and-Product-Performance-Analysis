@@ -10,6 +10,8 @@ venv/
 
 # Raw and processed datasets
 data/raw/*.csv
+data/raw/*
+!data/raw/README.md
 data/raw/*.xlsx
 data/processed/*.csv
 data/processed/*.xlsx
