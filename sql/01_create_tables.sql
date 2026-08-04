@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS orders (
     order_approved_at DATETIME,
     order_delivered_carrier_date DATETIME,
     order_delivered_customer_date DATETIME,
-    order_estimate_delivery_date DATETIME,
+    order_estimated_delivery_date DATETIME,
     purchase_year SMALLINT,
     purchase_month TINYINT,
     purchase_year_month CHAR(7),
@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS order_items (
     product_id CHAR(32) NOT NULL,
     seller_id CHAR(32),
     shipping_limit_date DATETIME,
-    price DECIMAL (12, 2),
-    freight_value DECIMAL (12, 2),
+    price DECIMAL(12, 2),
+    freight_value DECIMAL(12, 2),
     PRIMARY KEY (order_id, order_item_id)
 ) ENGINE = InnoDB;
 
@@ -46,13 +46,13 @@ CREATE TABLE IF NOT EXISTS products (
     product_name_length INT,
     product_description_length INT,
     product_photos_qty INT,
-    product_weight_g DECIMAL (10, 2),
-    product_length_cm DECIMAL (10, 2),
-    product_height_cm DECIMAL (10, 2),
-    product_width_cm DECIMAL (10, 2)
+    product_weight_g DECIMAL(10, 2),
+    product_length_cm DECIMAL(10, 2),
+    product_height_cm DECIMAL(10, 2),
+    product_width_cm DECIMAL(10, 2)
 ) ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS reviews(
+CREATE TABLE IF NOT EXISTS reviews (
     review_key BIGINT AUTO_INCREMENT PRIMARY KEY,
     review_id CHAR(32),
     order_id CHAR(32) NOT NULL,
