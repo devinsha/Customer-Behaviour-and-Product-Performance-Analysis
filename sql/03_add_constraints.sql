@@ -1,11 +1,11 @@
+# Run this script once after all cleaned data has been loaded
+
 use customer_product_analysis;
 
 # Restore ID column types after pandas to_sql replacement
-ALTER Table orders
-modify order_id CHAR(32) not null,
-modify customer_id CHAR(32) not null;
+ALTER Table orders modify order_id CHAR(32) not null, modify customer_id CHAR(32) not null, modify order_status VARCHAR(30);
 
-ALTER Table products modify product_id CHAR(32) not null;
+ALTER Table products modify product_id CHAR(32) not null, modify product_category VARCHAR(100);
 
 # Add primary keys
 ALTER TABLE orders ADD PRIMARY KEY (order_id);
