@@ -1,6 +1,6 @@
 -- Delivery and review analysis
 
--- Set up VIEW
+-- 1. Set up VIEW
 
 drop view if exists vw_delivery_review_order;
 create view vw_delivery_review_order as
@@ -37,14 +37,14 @@ where o.order_status = 'delivered'
     and o.order_delivered_customer_date is not null
     and o.order_estimated_delivery_date is not null;
 
--- Check if there is any duplicate orders
+-- 2. Check if there is any duplicate orders
 
 select
 	count(*) as total_rows,
     count(distinct order_id) as distinct_orders
 from vw_delivery_review_order;
 
--- Check missing reviews
+-- 3. Check missing reviews
 
 select
 	count(*) as total_orders,
@@ -54,7 +54,7 @@ select
 		end) as orders_without_review
 from vw_delivery_review_order;
 
--- Calculate key delivery and review analysis KPIs
+-- 4. Calculate key delivery and review analysis KPIs
 
 select
 	count(*) as total_delivered_orders,
@@ -73,7 +73,7 @@ select
 			end), 2) as delayed_avg_review_score
 from vw_delivery_review_order;
 
--- On time orders and delayed orders comparison
+-- 5. On time orders and delayed orders comparison
 
 select
 	case
@@ -90,7 +90,7 @@ from vw_delivery_review_order
 group by is_delayed
 order by is_delayed;
 
--- Analyse the extent of delayes
+-- 6. Analyse the extent of delayes
 
 select
 	case
@@ -120,7 +120,7 @@ order by
         when 'More than 10 days late' then 5
 	end;
 
--- Delivery and review analysis summary:
+-- 7. Delivery and review analysis summary:
 
 -- A total of 96,470 delivered orders were analysed.
 -- Most orders have been delivered on time or earlier than estimated date.
@@ -132,5 +132,5 @@ order by
 -- This suggests that longer delivery delays are strongly associated with low customer satisfcation.
 -- Therefore, delivery performance should be monitored, particularly for orders with delays exceeding 5 days, as these orders received lower review scores.
 
--- Business insight:
+-- 8. Business insight:
 -- Improving delivery reliability and identifying orders at risk of significant delays could help improve customer satisfaction and reduce low review scores.

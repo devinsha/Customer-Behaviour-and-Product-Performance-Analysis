@@ -1,6 +1,6 @@
 -- Regional analysis
 
--- Set up regional view for orders
+-- 1. Set up regional view for orders
 
 drop view if exists vw_regional_order_analysis;
 create view vw_regional_order_analysis as
@@ -39,14 +39,14 @@ left join (
 
 where o.order_status = 'delivered';
 
--- Check if there is any duplicate orders
+-- 2. Check if there is any duplicate orders
 
 select
 	count(*) as total_rows,
     count(distinct order_id) as distinct_orders
 from vw_regional_order_analysis;
 
--- State level regional performance
+-- 3. State level regional performance
 
 select
 	customer_state,
@@ -61,7 +61,7 @@ from vw_regional_order_analysis
 group by customer_state
 order by total_revenue DESC;
 
--- Calculate the repeat purchase rate for each state
+-- 4. Calculate the repeat purchase rate for each state
 
 with customer_orders_by_state as (
 	select
@@ -89,7 +89,7 @@ from customer_orders_by_state
 group by customer_state
 order by repeat_purchase_rate_pct DESC;
 
--- City level regional performance
+-- 5. City level regional performance
 
 select
 	customer_state, customer_city,
@@ -107,7 +107,7 @@ having count(*) >= 50
 order by total_revenue DESC
 limit 20;
 
--- Regional analysis summary:
+-- 6. Regional analysis summary:
 
 -- Regional performance varies substantially across Brazilian states. São Paulo was by far the largest market, generating approximately 5.07 million in revenue from 40,501 delivered orders and 39,156 customers.
 -- Rio de Janeiro and Minas Gerais were the next largest markets, generating approximately 1.76 million and 1.55 million in revenue respectively.
@@ -128,7 +128,7 @@ limit 20;
 -- Delivery performance varied considerably between major cities.
 -- Curitiba recorded a relatively low delayed order rate of 4.97% and an average review score of 4.26, while Salvador and Fortaleza recorded much higher delayed order rates of 17.51% and 17.96%, together with lower average review scores of 3.80 and 3.92.
 
--- Regional analysis business insight:
+-- 7. Regional analysis business insight:
 
 -- The analysis suggests that regional performance should be evaluated using a combination of market size, customer value, repeat purchasing and delivery experience.
 -- São Paulo remains the most important market because of its scale and relatively strong customer experience.

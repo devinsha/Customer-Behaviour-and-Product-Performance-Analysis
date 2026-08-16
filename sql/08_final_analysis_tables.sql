@@ -1,6 +1,6 @@
 -- Final analysis tables for Power BI
 
--- Set up delivery performance analysis
+-- 1. Set up delivery performance analysis
 
 use customer_product_analysis;
 
@@ -86,7 +86,7 @@ left join (
 	group by order_id) r on o.order_id = r.order_id
 where o.order_status = 'delivered';
 
--- Check if delivery_performance has been set up successfully
+-- 2. Check if delivery_performance has been set up successfully
 
 select
 	count(*) as total_rows,
@@ -123,7 +123,7 @@ select
 from delivery_performance
 group by customer_unique_id;
 
--- Check if customer_summary has been set up successfully
+-- 3. Check if customer_summary has been set up successfully
 
 select
 	count(*) as total_rows,
@@ -142,7 +142,7 @@ select
 from customer_summary
 group by customer_type;
 
--- Check if product performance can be accessed successfully
+-- 4. Check if product performance can be accessed successfully
 
 select *
 from product_performance
@@ -160,7 +160,7 @@ select
 	round(sum(revenue), 2) as product_table_revenue
 from product_performance;
 
--- Set up regional performance
+-- 5. Set up regional performance
 
 drop table if exists regional_performance;
 create table regional_performance as
@@ -211,7 +211,7 @@ left join (
             customer_unique_id) customer_order_by_state
 	group by customer_state) r on s.customer_state = r.customer_state;
 
--- Check if regional performance has been set up successfully
+-- 6. Check if regional performance has been set up successfully
 
 select *
 from regional_performance
@@ -226,3 +226,116 @@ select
 	count(*) as final_total_orders,
     round(sum(order_revenue), 2) as final_total_revenue
 from delivery_performance;
+
+-- 7. Revenue validation
+
+select
+	round(sum(oi.price), 2) as raw_delivered_revenue
+from orders o
+inner join order_items oi
+	on o.order_id = oi.order_id
+where order_status = 'delivered';
+
+select
+	round(sum(order_revenue), 2) as final_table_revenue
+from delivery_performance;
+
+-- 8. Order count validation
+
+select
+	count(distinct o.order_id) as raw_delivered_orders
+from orders o
+inner join order_items oi
+	on o.order_id = oi.order_id
+where order_status = 'delivered';
+
+select
+	count(*) as final_orders
+from delivery_performance;
+
+-- 9. Customer count validation
+
+select
+	count(distinct customer_unique_id) as raw_unique_customers
+from orders o
+inner join customers c
+	on o.customer_id = c.customer_id
+inner join order_items oi
+	on o.order_id = oi.order_id
+where o.order_status = 'delivered';
+
+select
+	count(*) as final_unique_customers
+from customer_summary;
+
+-- 10. Select 10 orders and manually verify Revenue
+
+select
+	d.order_id,
+    d.order_revenue as final_revenue,
+    round(sum(oi.price), 2) as recalculated_revenue,
+    round(d.order_revenue - sum(oi.price), 2) as difference
+from delivery_performance d
+inner join order_items oi
+	on d.order_id = oi.order_id
+group by
+	d.order_id,
+    d.order_revenue
+order by d.order_id
+limit 10;
+
+-- 11. Select 10 orders and verify Delivery and Review
+
+select
+	d.order_id,
+    d.delivery_days,
+    datediff(
+		o.order_delivered_customer_date,
+        o.order_purchase_timestamp) as recalculated_delivery_days,
+
+	d.delay_days,
+	datediff(
+		o.order_delivered_customer_date,
+        o.order_estimated_delivery_date) as recalculated_delay_days,
+
+    round(d.review_score, 2) as final_review_score,
+    round(avg(r.review_score), 2) as recalculated_review_score
+
+from delivery_performance d
+inner join orders o
+	on d.order_id = o.order_id
+left join reviews r
+	on d.order_id = r.order_id
+where d.order_delivered_customer_date is not null
+  and d.order_estimated_delivery_date is not null
+group by
+	d.order_id,
+    d.delivery_days,
+    o.order_delivered_customer_date,
+    o.order_purchase_timestamp,
+    d.delay_days,
+    o.order_estimated_delivery_date,
+    d.review_score
+order by d.order_id
+limit 10;
+
+-- 12. Final check the tables for Power BI
+
+show tables;
+select count(*) from product_performance;
+select count(*) from customer_summary;
+select count(*) from delivery_performance;
+select count(*) from regional_performance;
+
+-- 13. Summary:
+-- The final analysis layer was prepared for Power BI by structuring the data into four main levels: order, customer, product, and region.
+-- The delivery_performance table was created at order level, capturing revenue, delivery time, delay, and review information for each delivered order.
+-- The customer_summary table aggregates customer behaviour, including total orders, revenue, and repeat purchase status.
+-- Regional performance was summarised at state level, while product_performance was kept as a product category view.
+-- Validation checks were performed to ensure data consistency across all tables.
+-- Order counts, customer counts, and total revenue were matched against the original transaction data to avoid duplication issues.
+-- Final delivered order revenue was confirmed as 13,221,498.11, and sample-level checks verified that delivery time, delay, and review metrics were correctly calculated.
+
+-- 14. Business insight:
+-- This structured data model ensures a reliable foundation for Power BI analysis by separating different levels of granularity.
+-- It prevents double counting issues caused by multi-product orders and repeated reviews, and enables consistent comparison across product, customer, delivery, and regional performance using standardised metrics.
